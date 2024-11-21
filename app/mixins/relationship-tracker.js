@@ -1,0 +1,1 @@
+export { default } from 'ember-relationship-tracker/mixins/relationship-tracker';

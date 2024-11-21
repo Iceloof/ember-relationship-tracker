@@ -1,12 +1,13 @@
-# ember-relationship-tracker
+# Ember Relationship Tracker 
+<a href="https://www.npmjs.com/package/ember-relationship-tracker" target="blank"><img align="center" src="https://img.shields.io/npm/v/ember-relationship-tracker" alt="Ember Relationship Tracker" height="24" /></a> <a href="https://npm-stat.com/charts.html?package=ember-relationship-tracker" target="blank"><img align="center" src="https://img.shields.io/npm/dm/ember-relationship-tracker" alt="Reuters" height="24" /></a>
 
-[Short description of the addon.]
+**Ember Relationship Tracker** is an Ember addon designed to track changes in Ember Data relationships, such as `belongsTo` and `hasMany`. It extends the functionality of Ember Data models by overwriting methods like `hasDirtyAttributes`, `changedAttributes`, `rollbackAttributes`, and `save` to include relationship changes.
 
 
 ## Compatibility
 
-* Ember.js v3.28 or above
-* Ember CLI v3.28 or above
+* Ember.js v4.9 or above
+* Ember CLI v4.9 or above
 * Node.js v14 or above
 
 
@@ -18,8 +19,22 @@ ember install ember-relationship-tracker
 
 
 ## Usage
+To use the relationship tracker, extend your models from the BaseModel provided by the addon:
+```
+import TrackerModel from 'ember-relationship-tracker/models';
 
-[Longer description of how to use the addon in apps.]
+export default class MyModel extends TrackerModel {
+  // Your model attributes and methods here
+}
+```
+
+## Tracking Changes
+The addon overrides the following methods to include relationship changes:
+
+- **hasDirtyAttributes**: Checks if the model or any of its relationships have unsaved changes.
+- **changedAttributes**: Returns an object containing the changed attributes and relationships.
+- **rollbackAttributes**: Reverts the model and its relationships to their original state.
+- **save**: Saves the model and its relationships.
 
 
 ## Contributing

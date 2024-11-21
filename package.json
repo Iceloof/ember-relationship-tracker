@@ -1,13 +1,18 @@
 {
   "name": "ember-relationship-tracker",
-  "version": "0.0.0",
-  "description": "The default blueprint for ember-cli addons.",
+  "version": "1.0.0",
+  "description": "Ember Relationship Tracker is an Ember addon designed to track changes in Ember Data relationships, such as `belongsTo` and `hasMany`. It extends the functionality of Ember Data models by overwriting methods like `hasDirtyAttributes`, `changedAttributes`, `rollbackAttributes`, and `save` to include relationship changes.",
   "keywords": [
-    "ember-addon"
+    "ember-addon",
+    "relationships",
+    "models"
   ],
-  "repository": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Iceloof/ember-relationship-tracker"
+  },
   "license": "MIT",
-  "author": "",
+  "author": "Hurin Hu",
   "directories": {
     "doc": "doc",
     "test": "tests"
