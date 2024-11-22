@@ -55,19 +55,21 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
   get changedAttributes() {
     let changedAttributes = super.changedAttributes();
 
-    Object.keys(this.initialState.relationships)?.some(key => {
-      let initial = this.initialState.relationships[key];
-      let current = this.get(key);
-      if (Array.isArray(initial)) {
-        if (initial.length !== current?.slice()?.length || current?.slice()?.some((item, index) => item !== initial[index])){
-          changedAttributes[key] = [initial, current?.slice()];
+    if(this.initialState.relationships){
+      Object.keys(this.initialState.relationships)?.some(key => {
+        let initial = this.initialState.relationships[key];
+        let current = this.get(key);
+        if (Array.isArray(initial)) {
+          if (initial.length !== current?.slice()?.length || current?.slice()?.some((item, index) => item !== initial[index])){
+            changedAttributes[key] = [initial, current?.slice()];
+          }
+        } else {
+          if (initial !== current) {
+            changedAttributes[key] = [initial, current];
+          }
         }
-      } else {
-        if (initial !== current) {
-          changedAttributes[key] = [initial, current];
-        }
-      }
-    });
+      });
+    }
     return changedAttributes;
   }
 
@@ -90,10 +92,7 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
   }
 
   save(...args) {
-    return super.save(...args).then((result) => {
-      // reset initial state
-      this.saveInitialState();
-      return result;
-    });
+    return super.save(...args);
   }
+
 }

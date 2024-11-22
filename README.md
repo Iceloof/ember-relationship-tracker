@@ -31,6 +31,7 @@ export default class MyModel extends TrackerModel {
 ## Tracking Changes
 The addon overrides the following methods to include relationship changes:
 
+- **saveInitialState**: Save initialState. Note: if model is modified and saved, you may need to manually call this function `yourmodel.saveInitialState()` to update initialState.
 - **hasDirtyAttributes**: Checks if the model or any of its relationships have unsaved changes.
 - **changedAttributes**: Returns an object containing the changed attributes and relationships.
 - **rollbackAttributes**: Reverts the model and its relationships to their original state.
