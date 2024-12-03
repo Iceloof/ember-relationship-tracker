@@ -8,7 +8,7 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
   async init() {
     super.init(...arguments);
     // delay to avoid relationship recursive loop
-    await this.delay(500);
+    await this.delay(200);
     this.saveInitialState();
   }
 
@@ -29,7 +29,7 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
       if (meta.kind === 'belongsTo') {
         relationships[name] = this.belongsTo(name).value();
       } else if (meta.kind === 'hasMany') {
-        relationships[name] = this.hasMany(name).value()?.slice();
+        relationships[name] = this.hasMany(name).value()?.slice() || [];
       }
     });
 
@@ -44,6 +44,7 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
       let initial = this.initialState.relationships[key];
       let current = this.get(key);
       if (Array.isArray(initial)) {
+        current = this.get(key) || [];
         return initial.length !== current?.slice()?.length || current?.slice()?.some((item, index) => item !== initial[index]);
       } else {
         return initial !== current;
