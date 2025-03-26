@@ -77,16 +77,16 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
   rollbackAttributes() {
     // Rollback attributes using Ember Data's built-in method
     super.rollbackAttributes();
-
+    
     // Rollback relationships
-    if(this.initialState.relationships){
-      Object.keys(this.initialState.relationships).forEach(key => {
-        if (Array.isArray(this.initialState.relationships[key])) {
-          let relationship = this.get(key);
-          relationship.length = 0; // Clear the array
-          relationship.push(...this.initialState.relationships[key]); // Use native push method
+    const relationships = this.initialState.relationships;
+    if(relationships){
+      Object.keys(relationships).forEach(key => {
+        if (Array.isArray(relationships[key])) {
+          let rs = this.get(key);
+          rs.forEach(k => k?.rollbackAttributes());
         } else {
-          this.set(key, this.initialState.relationships[key]);
+          this.get(key)?.rollbackAttributes();
         }
       });
     }
