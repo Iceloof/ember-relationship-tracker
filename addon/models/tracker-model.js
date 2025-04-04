@@ -45,9 +45,9 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
       let current = this.get(key);
       if (Array.isArray(initial)) {
         current = this.get(key) || [];
-        return initial.length !== current?.slice()?.length || current?.slice()?.some((item, index) => item !== initial[index]);
+        return initial.length !== current?.slice()?.length || current?.slice()?.some((item, index) => item?.hasDirtyAttributes||item !== initial[index]);
       } else {
-        return initial !== current;
+        return current?.hasDirtyAttributes||initial !== current;
       }
     }):false;
     return attributesChanged || relationshipsChanged;
@@ -55,18 +55,18 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
 
   get changedAttributes() {
     let changedAttributes = super.changedAttributes();
-
+    
     if(this.initialState.relationships){
       Object.keys(this.initialState.relationships)?.some(key => {
         let initial = this.initialState.relationships[key];
         let current = this.get(key);
         if (Array.isArray(initial)) {
-          if (initial.length !== current?.slice()?.length || current?.slice()?.some((item, index) => item !== initial[index])){
-            changedAttributes[key] = [initial, current?.slice()];
+          if (initial.length !== current?.slice()?.length || current?.slice()?.some((item, index) => item?.hasDirtyAttributes||item !== initial[index])){
+            changedAttributes[key] = initial.length !== current?.slice()?.length?[initial, current?.slice()]:current?.slice()?.filter((item, index) => item?.hasDirtyAttributes||item !== initial[index]).map((item, index) => item?.hasDirtyAttributes?item?.changedAttributes:[initial[index],item]);
           }
         } else {
-          if (initial !== current) {
-            changedAttributes[key] = [initial, current];
+          if (current?.hasDirtyAttributes||initial !== current) {
+            changedAttributes[key] = current?.hasDirtyAttributes?current?.changedAttributes:[initial, current];
           }
         }
       });
