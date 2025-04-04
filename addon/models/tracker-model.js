@@ -23,7 +23,7 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
     };
   }
 
-  _getRelationships() {
+    _getRelationships() {
     let relationships = {};
     this.constructor.relationshipsByName.forEach((meta, name) => {
       if (meta.kind === 'belongsTo') {
@@ -45,9 +45,9 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
       let current = this.get(key);
       if (Array.isArray(initial)) {
         current = this.get(key) || [];
-        return initial.length !== current?.slice()?.length || current?.slice()?.some((item, index) => item?.hasDirtyAttributes||item !== initial[index]);
+        return initial.length !== current.slice().length || current?.slice()?.some((item, index) => item?.hasDirtyAttributes||item?.isNew||item?.isDeleted);
       } else {
-        return current?.hasDirtyAttributes||initial !== current;
+        return current?.hasDirtyAttributes;
       }
     }):false;
     return attributesChanged || relationshipsChanged;
@@ -61,12 +61,12 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
         let initial = this.initialState.relationships[key];
         let current = this.get(key);
         if (Array.isArray(initial)) {
-          if (initial.length !== current?.slice()?.length || current?.slice()?.some((item, index) => item?.hasDirtyAttributes||item !== initial[index])){
-            changedAttributes[key] = initial.length !== current?.slice()?.length?[initial, current?.slice()]:current?.slice()?.filter((item, index) => item?.hasDirtyAttributes||item !== initial[index]).map((item, index) => item?.hasDirtyAttributes?item?.changedAttributes:[initial[index],item]);
+          if (initial.length !== current.slice().length || current?.slice()?.some((item, index) => item?.hasDirtyAttributes||item?.isNew||item?.isDeleted)){
+            changedAttributes[key] = initial.length !== current.slice().length?initial.filter(item => !current.includes(item)):current?.slice()?.filter((item, index) => item?.hasDirtyAttributes||item?.isNew||item?.isDeleted).map((item, index) => item?.changedAttributes);
           }
         } else {
-          if (current?.hasDirtyAttributes||initial !== current) {
-            changedAttributes[key] = current?.hasDirtyAttributes?current?.changedAttributes:[initial, current];
+          if (current?.hasDirtyAttributes) {
+            changedAttributes[key] = current?.changedAttributes;
           }
         }
       });
