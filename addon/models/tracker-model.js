@@ -12,6 +12,7 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
     this.saveInitialState();
   }
 
+
   async delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
@@ -23,16 +24,15 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
     };
   }
 
-    _getRelationships() {
+  _getRelationships() {
     let relationships = {};
     this.constructor.relationshipsByName.forEach((meta, name) => {
       if (meta.kind === 'belongsTo') {
         relationships[name] = this.belongsTo(name).value();
       } else if (meta.kind === 'hasMany') {
-        relationships[name] = this.hasMany(name).value()?.slice() || [];
+        relationships[name] = this.hasMany(name).value()?.toArray() || [];
       }
     });
-
     return relationships;
   }
 
@@ -41,11 +41,10 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
     let attributesChanged = super.hasDirtyAttributes;
     // get relationship changes
     let relationshipsChanged = this.initialState.relationships?Object.keys(this.initialState.relationships)?.some(key => {
-      let initial = this.initialState.relationships[key];
       let current = this.get(key);
-      if (Array.isArray(initial)) {
+      if (Array.isArray(current)) {
         current = this.get(key) || [];
-        return initial.length !== current.slice().length || current?.slice()?.some((item, index) => item?.hasDirtyAttributes||item?.isNew||item?.isDeleted);
+        return current?.slice()?.some((item, index) => item?.hasDirtyAttributes||item?.isNew||item?.isDeleted);
       } else {
         return current?.hasDirtyAttributes;
       }
@@ -58,11 +57,10 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
     
     if(this.initialState.relationships){
       Object.keys(this.initialState.relationships)?.some(key => {
-        let initial = this.initialState.relationships[key];
         let current = this.get(key);
-        if (Array.isArray(initial)) {
-          if (initial.length !== current.slice().length || current?.slice()?.some((item, index) => item?.hasDirtyAttributes||item?.isNew||item?.isDeleted)){
-            changedAttributes[key] = initial.length !== current.slice().length?initial.filter(item => !current.includes(item)):current?.slice()?.filter((item, index) => item?.hasDirtyAttributes||item?.isNew||item?.isDeleted).map((item, index) => item?.changedAttributes);
+        if (Array.isArray(current)) {
+          if (current?.slice()?.some((item, index) => item?.hasDirtyAttributes||item?.isNew||item?.isDeleted)){
+            changedAttributes[key] = current?.slice()?.filter((item, index) => item?.hasDirtyAttributes||item?.isNew||item?.isDeleted).map((item, index) => item?.changedAttributes);
           }
         } else {
           if (current?.hasDirtyAttributes) {
