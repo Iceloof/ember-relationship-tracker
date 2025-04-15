@@ -35,16 +35,18 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
     });
     return relationships;
   }
-
+  
   get hasDirtyAttributes() {
     // get attributes changes
     let attributesChanged = super.hasDirtyAttributes;
     // get relationship changes
     let relationshipsChanged = this.initialState.relationships?Object.keys(this.initialState.relationships)?.some(key => {
+      let initial = this.initialState.relationships[key];
       let current = this.get(key);
       if (Array.isArray(current)) {
         current = this.get(key) || [];
-        return current?.slice()?.some((item, index) => item?.hasDirtyAttributes||item?.isNew||item?.isDeleted);
+        let deleted = initial.filter(element => !current.includes(element));
+        return deleted.length > 0 ? true : current?.slice()?.some((item) => item?.hasDirtyAttributes||item?.isNew||item?.isDeleted);
       } else {
         return current?.hasDirtyAttributes;
       }
@@ -57,10 +59,12 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
     
     if(this.initialState.relationships){
       Object.keys(this.initialState.relationships)?.some(key => {
+        let initial = this.initialState.relationships[key];
         let current = this.get(key);
         if (Array.isArray(current)) {
-          if (current?.slice()?.some((item, index) => item?.hasDirtyAttributes||item?.isNew||item?.isDeleted)){
-            changedAttributes[key] = current?.slice()?.filter((item, index) => item?.hasDirtyAttributes||item?.isNew||item?.isDeleted).map((item, index) => item?.changedAttributes);
+          let deleted = initial.filter(element => !current.includes(element));
+          if (deleted.length > 0 || current?.slice()?.some((item) => item?.hasDirtyAttributes||item?.isNew||item?.isDeleted)){
+            changedAttributes[key] = [...new Set([...deleted, ...current?.slice()?.filter((item) => item?.hasDirtyAttributes||item?.isNew||item?.isDeleted)])];
           }
         } else {
           if (current?.hasDirtyAttributes) {
