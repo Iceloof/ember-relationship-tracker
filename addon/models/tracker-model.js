@@ -27,13 +27,18 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
   _getRelationships() {
     let relationships = {};
     this.constructor.relationshipsByName.forEach((meta, name) => {
-      if (meta.kind === 'belongsTo') {
+      if(meta.options?.notTracking){
+      } else if (meta.kind === 'belongsTo') {
         relationships[name] = this.belongsTo(name).value();
       } else if (meta.kind === 'hasMany') {
         relationships[name] = this.hasMany(name).value()?.slice() || [];
       }
     });
     return relationships;
+  }
+
+  get hasOriginalDirtyAttributes() {
+    return super.hasDirtyAttributes;
   }
   
   get hasDirtyAttributes() {
@@ -44,11 +49,11 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
       let initial = this.initialState.relationships[key];
       let current = this.get(key);
       if (Array.isArray(current)) {
-        current = this.get(key) || [];
+        current = this.get(key).slice() || [];
         let deleted = initial.filter(element => !current.includes(element));
         return deleted.length > 0 ? true : current?.slice()?.some((item) => item?.hasDirtyAttributes||item?.isNew||item?.isDeleted);
       } else {
-        return current?.hasDirtyAttributes;
+        return current?.hasDirtyAttributes || current?.isNew || current?.isDeleted || initial!==current;
       }
     }):false;
     return attributesChanged || relationshipsChanged;
@@ -62,13 +67,16 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
         let initial = this.initialState.relationships[key];
         let current = this.get(key);
         if (Array.isArray(current)) {
+          current = this.get(key).slice() || [];
           let deleted = initial.filter(element => !current.includes(element));
-          if (deleted.length > 0 || current?.slice()?.some((item) => item?.hasDirtyAttributes||item?.isNew||item?.isDeleted)){
-            changedAttributes[key] = [...new Set([...deleted, ...current?.slice()?.filter((item) => item?.hasDirtyAttributes||item?.isNew||item?.isDeleted)])];
+          if (deleted.length > 0 || current?.slice()?.some((item) => item?.hasOriginalDirtyAttributes||item?.isNew||item?.isDeleted)){
+            changedAttributes[key] = [...new Set([...deleted, ...current?.slice()?.filter((item) => item?.hasOriginalDirtyAttributes||item?.isNew||item?.isDeleted)])];
           }
         } else {
           if (current?.hasDirtyAttributes) {
             changedAttributes[key] = current?.changedAttributes;
+          } else if(current?.isNew || current?.isDeleted || initial!==current) {
+            changedAttributes[key] = current;
           }
         }
       });

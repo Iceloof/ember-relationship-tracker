@@ -27,6 +27,10 @@ export default class MyModel extends TrackerModel {
   // Your model attributes and methods here
 }
 ```
+If you want to ignore the relationship tracking, add `notTracking: true`
+```
+	@belongsTo('type1', { async: false, inverse: 'type2', notTracking: true }) attrName;
+```
 
 ## Tracking Changes
 The addon overrides the following methods to include relationship changes:
