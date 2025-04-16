@@ -30,7 +30,7 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
       if (meta.kind === 'belongsTo') {
         relationships[name] = this.belongsTo(name).value();
       } else if (meta.kind === 'hasMany') {
-        relationships[name] = this.hasMany(name).value()?.toArray() || [];
+        relationships[name] = this.hasMany(name).value()?.slice() || [];
       }
     });
     return relationships;
@@ -87,6 +87,7 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
         if (Array.isArray(relationships[key])) {
           let rs = this.get(key);
           rs.forEach(k => k?.rollbackAttributes());
+          this.set(key,this.initialState.relationships[key]);
         } else {
           this.get(key)?.rollbackAttributes();
         }
