@@ -1,6 +1,6 @@
 {
   "name": "ember-relationship-tracker",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Ember Relationship Tracker is an Ember addon designed to track changes in Ember Data relationships, such as `belongsTo` and `hasMany`. It extends the functionality of Ember Data models by overwriting methods like `hasDirtyAttributes`, `changedAttributes`, `rollbackAttributes`, and `save` to include relationship changes.",
   "keywords": [
     "ember-addon",
