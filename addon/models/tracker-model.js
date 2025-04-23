@@ -8,7 +8,7 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
   async init() {
     super.init(...arguments);
     // delay to avoid relationship recursive loop
-    await this.delay(200);
+    await this.delay(300);
     this.saveInitialState();
   }
 
