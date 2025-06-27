@@ -98,6 +98,7 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
           this.set(key,this.initialState.relationships[key]);
         } else {
           this.get(key)?.rollbackAttributes();
+          this.set(key,this.initialState.relationships[key]);
         }
       });
     }
