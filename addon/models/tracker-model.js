@@ -26,12 +26,12 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
 
   _getRelationships() {
     let relationships = {};
-    this.constructor.relationshipsByName.forEach((meta, name) => {
+    this.constructor?.relationshipsByName?.forEach((meta, name) => {
       if(meta.options?.notTracking){
       } else if (meta.kind === 'belongsTo') {
-        relationships[name] = this.belongsTo(name).value();
+        relationships[name] = this.belongsTo(name)?.value() || null;
       } else if (meta.kind === 'hasMany') {
-        relationships[name] = this.hasMany(name).value()?.slice() || [];
+        relationships[name] = this.hasMany(name)?.value()?.slice() || [];
       }
     });
     return relationships;
@@ -94,11 +94,16 @@ export default class TrackerModel extends Model.extend(RelationshipTrackerMixin)
       Object.keys(relationships).forEach(key => {
         if (Array.isArray(relationships[key])) {
           let rs = this.get(key);
-          rs.forEach(k => k?.rollbackAttributes());
-          this.set(key,this.initialState.relationships[key]);
+          rs?.forEach(k => {if(!k?.isNew){k?.rollbackAttributes();}});
         } else {
-          this.get(key)?.rollbackAttributes();
-          this.set(key,this.initialState.relationships[key]);
+          if(!this.get(key)?.isNew){
+            this?.get(key)?.rollbackAttributes();
+          }
+        }
+        if(relationships[key]) {
+          this.set(key,relationships[key]);
+        } else {
+          this.set(key,null);
         }
       });
     }
